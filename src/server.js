@@ -1,6 +1,6 @@
 import app from './app'
 
-const my__app = 'pça'
+const my__app = 'deu certo meu parça'
 
 console.log(my__app)
 

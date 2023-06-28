@@ -18,7 +18,8 @@
     "sequelize": "^6.32.1",
     "sucrase": "^3.32.0",
     "uuid": "^9.0.0",
-    "yarn": "^1.22.19"
+    "yarn": "^1.22.19",
+    "yup": "^1.2.0"
   },
   "devDependencies": {
     "eslint": "^8.0.1",
