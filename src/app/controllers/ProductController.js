@@ -28,6 +28,12 @@ class ProductsController {
 
     return response.json(product)
   }
+
+  async index (request, response) {
+    const products = await Product.findAll()
+    console.log(request.userId)
+    return response.json(products)
+  }
 }
 
 export default new ProductsController()

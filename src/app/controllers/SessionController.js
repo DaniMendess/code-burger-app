@@ -1,6 +1,10 @@
 import * as Yup from 'yup'
 import User from '../models/User'
 
+import authConfig from '../../config/auth'
+
+import jwt from 'jsonwebtoken'
+
 class SessionController {
   async store (resquest, response) {
     const schema = Yup.object().shape({
@@ -15,7 +19,6 @@ class SessionController {
     if (!(await schema.isValid(resquest.body))) {
       UserMessageError()
     }
-
     const { email, password } = resquest.body
 
     const user = await User.findOne({
@@ -32,7 +35,17 @@ class SessionController {
       UserMessageError()
     }
 
-    return response.json({ id: user.id, email, name: user.name, admin: user.admin })
+    return response.json({
+      id: user.id,
+      email,
+      name: user.name,
+      admin: user.admin,
+      token: jwt.sign({
+        id: user.id
+      }, authConfig.secret, {
+        expiresIn: authConfig.expiresIn
+      })
+    })
   }
 }
 
