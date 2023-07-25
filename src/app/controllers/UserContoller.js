@@ -16,9 +16,10 @@ class UserController {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
       email: Yup.string().email().required(),
-      password: Yup.string().required().min(8),
+      password: Yup.string().required().min(6),
       admin: Yup.boolean()
-    })
+    }) 
+
 
     // Duas formas para verificar se as informações estão chegando corretas
 
@@ -41,7 +42,7 @@ class UserController {
     })
 
     if (userExists) {
-      return response.status(400).json({ erro: 'User existing' })
+      return response.status(409).json({ erro: 'User existing' })
     }
 
     console.log(userExists)

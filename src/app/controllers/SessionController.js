@@ -1,52 +1,55 @@
-import * as Yup from 'yup'
-import User from '../models/User'
-
-import authConfig from '../../config/auth'
-
-import jwt from 'jsonwebtoken'
+import * as Yup from 'yup';
+import User from '../models/User';
+import authConfig from '../../config/auth';
+import jwt from 'jsonwebtoken';
 
 class SessionController {
-  async store (resquest, response) {
+  async store(request, response) {
     const schema = Yup.object().shape({
       email: Yup.string().email().required(),
-      password: Yup.string().required()
-    })
+      password: Yup.string().required(),
+    });
 
-    const UserMessageError = () => {
-      return response.status(401).json({ error: 'wrong password or email' })
-    }
+    try {
+      await schema.validate(request.body);
 
-    if (!(await schema.isValid(resquest.body))) {
-      UserMessageError()
-    }
-    const { email, password } = resquest.body
 
-    const user = await User.findOne({
-      where: {
-        email
+      const { email, password } = request.body;
+
+      const user = await User.findOne({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        throw new Error('User not found');
       }
-    })
 
-    if (!user) {
-      UserMessageError()
+      if (!(await user.checkPassword(password))) {
+        throw new Error('Wrong password');
+      }
+
+      return response.json({
+        id: user.id,
+        email,
+        name: user.name,
+        admin: user.admin,
+        token: jwt.sign(
+          {
+            id: user.id,
+            name: user.name,
+          },
+          authConfig.secret,
+          {
+            expiresIn: authConfig.expiresIn,
+          }
+        ),
+      });
+    } catch (error) {
+      return response.status(401).json({ error: 'Authentication failed' });
     }
-
-    if (!(await user.checkPassword(password))) {
-      UserMessageError()
-    }
-
-    return response.json({
-      id: user.id,
-      email,
-      name: user.name,
-      admin: user.admin,
-      token: jwt.sign({
-        id: user.id, name: user.name
-      }, authConfig.secret, {
-        expiresIn: authConfig.expiresIn
-      })
-    })
   }
 }
 
-export default new SessionController()
+export default new SessionController();
